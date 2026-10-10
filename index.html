@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Official Jersey Claim</title>
+  <meta name="description" content="Official student jersey reservation system. Live availability check directly synced with Google Sheets.">
+
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Confetti Canvas for Celebration -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="site-wrapper">
+
+    <!-- Connection Warning Banner (shown if SCRIPT_URL is missing or unreachable) -->
+    <div id="connection-banner" class="connection-banner" style="display: none;" role="alert">
+      <span id="connection-message">Cannot connect to the server. Please refresh and try again.</span>
+      <button type="button" id="btn-reconnect">Retry</button>
+    </div>
+
+    <!-- Header Section -->
+    <header class="site-header">
+      <div class="team-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+          <path d="M4 22h16"/>
+          <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+          <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+          <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+        </svg>
+        Official Team Roster
+      </div>
+      <h1 class="site-title">Claim Your Jersey</h1>
+      <p class="site-subtitle">Pick your custom number (0–99) and size. Each number can only be claimed once, first come, first served!</p>
+    </header>
+
+    <!-- Main Content: Form + Grid -->
+    <main class="main-layout">
+
+      <!-- Left Column: Registration Card & Live Jersey Preview -->
+      <section class="glass-card" aria-labelledby="form-heading">
+        <h2 id="form-heading" class="card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+          Reserve Your Jersey
+        </h2>
+
+        <!-- Live Vector Jersey Preview -->
+        <div class="jersey-preview-container" aria-hidden="true">
+          <div class="jersey-canvas" id="jersey-canvas">
+            <svg class="jersey-svg" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Jersey Body Shadow & Base -->
+              <path d="M50 35 L70 20 H130 L150 35 L190 70 L165 105 L145 92 V215 C145 220 140 225 135 225 H65 C60 225 55 220 55 215 V92 L35 105 L10 70 L50 35 Z" fill="#1E3A8A"/>
+              
+              <!-- Shoulder & Side Athletic Accents -->
+              <path d="M50 35 L70 20 L65 70 L35 105 L10 70 Z" fill="#2563EB" opacity="0.6"/>
+              <path d="M150 35 L130 20 L135 70 L165 105 L190 70 Z" fill="#2563EB" opacity="0.6"/>
+              
+              <!-- Gold Trim Stripes on Sleeves -->
+              <path d="M15 67 L32 101" stroke="#F59E0B" stroke-width="4" stroke-linecap="round"/>
+              <path d="M185 67 L168 101" stroke="#F59E0B" stroke-width="4" stroke-linecap="round"/>
+              
+              <!-- Collar Cutout & Gold V-Neck -->
+              <path d="M75 20 C75 35 125 35 125 20" fill="#090D16"/>
+              <path d="M75 20 C75 42 125 42 125 20" stroke="#F59E0B" stroke-width="4" fill="none"/>
+              
+              <!-- Athletic Texture Details -->
+              <line x1="65" y1="220" x2="135" y2="220" stroke="#3B82F6" stroke-width="3"/>
+            </svg>
+
+            <!-- Dynamic Name, Number, and Size Overlays -->
+            <div id="jersey-preview-name" class="jersey-name-display">YOUR NAME</div>
+            <div id="jersey-preview-number" class="jersey-number-display">--</div>
+            <div id="jersey-preview-size" class="jersey-tag-display">SIZE: --</div>
+          </div>
+        </div>
+
+        <!-- Registration Form -->
+        <form id="jersey-form" novalidate>
+
+          <!-- 1. Student Name -->
+          <div class="form-group">
+            <label for="student-name" class="form-label">
+              <span>Full Name <span class="req">*</span></span>
+              <small id="name-hint" style="color: var(--text-dim); font-size: 0.75rem;">As you want it printed</small>
+            </label>
+            <div class="form-input-wrapper">
+              <input 
+                type="text" 
+                id="student-name" 
+                name="studentName" 
+                class="form-input" 
+                placeholder="Enter your full name" 
+                required 
+                minlength="2" 
+                maxlength="60"
+                autocomplete="name"
+                aria-describedby="name-hint"
+              >
+            </div>
+          </div>
+
+          <!-- 2. Jersey Number -->
+          <div class="form-group">
+            <label for="jersey-number" class="form-label">
+              <span>Jersey Number (0–99) <span class="req">*</span></span>
+              <small style="color: var(--text-dim); font-size: 0.75rem;">Click grid or type</small>
+            </label>
+            <div class="form-input-wrapper">
+              <input 
+                type="number" 
+                id="jersey-number" 
+                name="jerseyNumber" 
+                class="form-input" 
+                placeholder="Pick 0 to 99" 
+                min="0" 
+                max="99" 
+                step="1"
+                required
+                inputmode="numeric"
+                aria-describedby="number-status"
+              >
+            </div>
+            
+            <!-- Live Status Feedback Badge -->
+            <div id="number-status" class="number-status-badge status-neutral" aria-live="polite">
+              <span>Enter or pick a number to check availability</span>
+            </div>
+
+            <!-- Dean Access Toggle Link -->
+            <div class="dean-toggle-wrap">
+              <button type="button" id="toggle-dean-mode" class="dean-toggle-btn">
+                <span>🔒 Dean Access</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dean Access Passcode Box (Hidden by default) -->
+          <div id="dean-box" class="dean-box" style="display: none;">
+            <div class="dean-box-header">
+              <span>Dean Reservation (#333)</span>
+              <span class="dean-badge-label">OFFICIAL</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.8125rem; margin-bottom: 0.5rem;">
+              Jersey number 333 is reserved for the Dean. Enter your secret passcode to claim.
+            </p>
+            <div class="form-input-wrapper">
+              <input 
+                type="password" 
+                id="dean-passcode" 
+                class="form-input" 
+                placeholder="Enter Dean Passcode" 
+                autocomplete="off"
+              >
+            </div>
+          </div>
+
+          <!-- 3. Jersey Size -->
+          <div class="form-group">
+            <label for="jersey-size" class="form-label">
+              <span>Jersey Size <span class="req">*</span></span>
+              <small style="color: var(--text-dim); font-size: 0.75rem;">Standard unisex fit</small>
+            </label>
+            <div class="form-input-wrapper">
+              <select id="jersey-size" name="jerseySize" class="form-select" required>
+                <option value="" disabled selected>Select size (S, M, L, XL, XXL)</option>
+                <option value="S">Small (S)</option>
+                <option value="M">Medium (M)</option>
+                <option value="L">Large (L)</option>
+                <option value="XL">Extra Large (XL)</option>
+                <option value="XXL">Double Extra Large (XXL)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="btn-submit" class="btn-submit">
+            <span id="btn-text">Confirm & Claim Jersey</span>
+            <div id="btn-spinner" class="spinner" style="display: none;" aria-hidden="true"></div>
+          </button>
+
+          <!-- Error Alert Box -->
+          <div id="error-box" class="alert-box alert-error" role="alert">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span id="error-message">Jersey number is already taken.</span>
+          </div>
+
+        </form>
+      </section>
+
+      <!-- Right Column: Interactive 0-99 Visual Grid -->
+      <section class="glass-card" aria-labelledby="grid-heading">
+        
+        <div class="grid-header-wrap">
+          <div>
+            <h2 id="grid-heading" class="card-title" style="margin-bottom: 0.25rem;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+              </svg>
+              Available Numbers (0–99)
+            </h2>
+            <p style="color: var(--text-dim); font-size: 0.8125rem;">
+              Tap any green number below to quickly select it
+            </p>
+          </div>
+
+          <!-- Live Count Indicators -->
+          <div class="grid-stats">
+            <div class="stat-live-pulse" title="Live Auto-Sync Active"></div>
+            <span class="stat-pill stat-available">
+              <span id="count-available">--</span> Free
+            </span>
+            <span class="stat-pill stat-taken">
+              <span id="count-taken">--</span> Claimed
+            </span>
+          </div>
+        </div>
+
+        <!-- Filter Range Tabs -->
+        <div class="grid-filters" role="tablist" aria-label="Filter jersey numbers by range">
+          <button type="button" class="filter-btn active" data-range="all" id="filter-all">All (0-99)</button>
+          <button type="button" class="filter-btn" data-range="0-19">0–19</button>
+          <button type="button" class="filter-btn" data-range="20-39">20–39</button>
+          <button type="button" class="filter-btn" data-range="40-59">40–59</button>
+          <button type="button" class="filter-btn" data-range="60-79">60–79</button>
+          <button type="button" class="filter-btn" data-range="80-99">80–99</button>
+          <button type="button" class="filter-btn" data-range="free-only" id="filter-free-only">Available Only</button>
+        </div>
+
+        <!-- 0-99 Number Buttons Grid -->
+        <div id="number-grid" class="number-grid" role="region" aria-label="Jersey number selection grid">
+          <!-- Populated dynamically via app.js -->
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Success Confirmation Modal -->
+    <div id="success-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-success-title">
+      <div class="modal-content">
+        <div class="success-icon-wrap">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+
+        <h3 id="modal-success-title" class="modal-title">Jersey Secured!</h3>
+        <p class="modal-desc">Your jersey reservation has been confirmed and saved to the team roster.</p>
+
+        <!-- Receipt Card -->
+        <div class="receipt-card">
+          <div class="receipt-row">
+            <span class="receipt-label">Student Name</span>
+            <span class="receipt-value" id="receipt-name">--</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Reserved Jersey #</span>
+            <span class="receipt-badge-number" id="receipt-number">--</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Jersey Size</span>
+            <span class="receipt-value" id="receipt-size">--</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Status</span>
+            <span class="receipt-value" style="color: #34D399;">✓ Confirmed in Database</span>
+          </div>
+        </div>
+
+        <button type="button" id="btn-close-modal" class="btn-secondary">
+          Register Another Student
+        </button>
+      </div>
+    </div>
+
+    <!-- Official Rules Section -->
+    <section id="official-rules" class="info-drawer">
+      <h3 class="info-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        Registration Rules & Fairness
+      </h3>
+      <ol class="info-list">
+        <li><strong>First Come, First Served:</strong> Numbers 0 to 99 are available to students. Each number can only be claimed once.</li>
+        <li><strong>Live Auto-Sync:</strong> The grid automatically checks for newly claimed numbers every few seconds. When someone takes a number, it disappears from the available pool instantly.</li>
+        <li><strong>Dean Reserved Number:</strong> Jersey number 333 is strictly reserved for the Dean and requires a verified passcode.</li>
+        <li><strong>Student Privacy:</strong> The public site only shows which numbers are claimed. Your name and size remain completely private.</li>
+      </ol>
+    </section>
+
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
