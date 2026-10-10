@@ -23,8 +23,8 @@ Jersey/
 
 ### Step 1: Set Up Your Google Sheet
 
-1. Open [Google Sheets](https://sheets.google.com).
-2. Create a blank spreadsheet.
+1. Open your sheet:  
+   👉 [https://docs.google.com/spreadsheets/d/1mZ-UqbEYoPnHcnhZjjFxC0i1QM8PYg72PILNAvykaRA/edit](https://docs.google.com/spreadsheets/d/1mZ-UqbEYoPnHcnhZjjFxC0i1QM8PYg72PILNAvykaRA/edit)
 3. Name the sheet tab at the bottom:
    ```text
    Jerseys

@@ -2,8 +2,8 @@
  * PRODUCTION JERSEY REGISTRATION BACKEND (Google Apps Script)
  * 
  * Connected to Google Sheet:
- * https://docs.google.com/spreadsheets/d/1OsygxRivoA_j0MIhHwW4yxtDp3hXGg1F0c4R2ctSctg/edit
- * Sheet ID: 1OsygxRivoA_j0MIhHwW4yxtDp3hXGg1F0c4R2ctSctg
+ * https://docs.google.com/spreadsheets/d/1mZ-UqbEYoPnHcnhZjjFxC0i1QM8PYg72PILNAvykaRA/edit
+ * Sheet ID: 1mZ-UqbEYoPnHcnhZjjFxC0i1QM8PYg72PILNAvykaRA
  * Tab Name: "Jerseys"
  * Columns: Timestamp | Student Name | Jersey Number | Size
  *
@@ -14,10 +14,11 @@
  *    stored in Apps Script Project Settings > Script Properties (key: DEAN_CODE).
  * 4. Uses LockService to process submissions one-at-a-time, eliminating race conditions.
  * 5. Returns only taken numbers to the public—NEVER exposes student names or sizes.
+ *    Only the Sheet Owner can see who applied and what size they chose.
  */
 
 // Target Google Sheet configuration
-const SPREADSHEET_ID = "1OsygxRivoA_j0MIhHwW4yxtDp3hXGg1F0c4R2ctSctg";
+const SPREADSHEET_ID = "1mZ-UqbEYoPnHcnhZjjFxC0i1QM8PYg72PILNAvykaRA";
 const SHEET_NAME = "Jerseys";
 const HEADERS = ["Timestamp", "Student Name", "Jersey Number", "Size"];
 const ALLOWED_SIZES = ["S", "M", "L", "XL", "XXL"];
