@@ -1,7 +1,10 @@
 /**
  * PRODUCTION JERSEY REGISTRATION BACKEND (Google Apps Script)
  * 
- * Connected to Google Sheet: Tab "Jerseys"
+ * Connected to Google Sheet:
+ * https://docs.google.com/spreadsheets/d/1OsygxRivoA_j0MIhHwW4yxtDp3hXGg1F0c4R2ctSctg/edit
+ * Sheet ID: 1OsygxRivoA_j0MIhHwW4yxtDp3hXGg1F0c4R2ctSctg
+ * Tab Name: "Jerseys"
  * Columns: Timestamp | Student Name | Jersey Number | Size
  *
  * RULES ENFORCED ON THE SERVER:
@@ -13,6 +16,8 @@
  * 5. Returns only taken numbers to the public—NEVER exposes student names or sizes.
  */
 
+// Target Google Sheet configuration
+const SPREADSHEET_ID = "1OsygxRivoA_j0MIhHwW4yxtDp3hXGg1F0c4R2ctSctg";
 const SHEET_NAME = "Jerseys";
 const HEADERS = ["Timestamp", "Student Name", "Jersey Number", "Size"];
 const ALLOWED_SIZES = ["S", "M", "L", "XL", "XXL"];
@@ -22,10 +27,29 @@ const DEAN_RESERVED_NUMBER = 333;
 const DEAN_PROPERTY_KEY = "DEAN_CODE";
 
 /**
+ * Access the target spreadsheet directly by its unique ID,
+ * with fallback to the active spreadsheet if opened from Extensions menu.
+ */
+function getSpreadsheet() {
+  if (SPREADSHEET_ID && SPREADSHEET_ID.trim() !== "") {
+    try {
+      return SpreadsheetApp.openById(SPREADSHEET_ID.trim());
+    } catch (err) {
+      // Fallback if openById fails in certain container permissions
+    }
+  }
+  return SpreadsheetApp.getActiveSpreadsheet();
+}
+
+/**
  * Access or initialize the "Jerseys" sheet tab with required headers.
  */
 function getOrCreateSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet();
+  if (!ss) {
+    throw new Error("Could not find the target Google Sheet. Please check spreadsheet permissions or SPREADSHEET_ID.");
+  }
+  
   let sheet = ss.getSheetByName(SHEET_NAME);
   
   if (!sheet) {
