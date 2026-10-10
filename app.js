@@ -6,7 +6,7 @@
  * STEP 2: Paste your deployed Google Apps Script Web App URL below!
  * Example: const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx.../exec";
  */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxvpVyZ9JeYdeIsVUiAsT796s-9MCgNyrqbRWSwgWxFH3-IizOit0U_P100pRWBTnF_Cg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-dQaoDidOPceGPSPZ9rRSkg_cPX9Ad12_xOXut9-xDv8qdPA-mLWNfYHtVTOKgIciAQ/exec";
 
 // Application State
 let takenNumbers = new Set();
